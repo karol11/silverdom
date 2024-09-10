@@ -1,0 +1,3 @@
+[submodule "depends/argentum"]
+	path = argentum
+	url = https://github.com/karol11/argentum.git
