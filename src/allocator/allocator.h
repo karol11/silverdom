@@ -8,9 +8,9 @@ extern "C" {
 
 typedef struct AgAllocator_tag AgAllocator;
 
-AgAllocator* ag_al_init(void* start_addr, void* end_addr);
-void*        ag_al_alloc         (AgAllocator* alloc, size_t size);
-void         ag_al_free          (AgAllocator* alloc, void* raw_ptr);
+AgAllocator* ag_al_init  (void* start_addr, size_t size);
+void*        ag_al_alloc (AgAllocator* alloc, size_t size);
+void         ag_al_free  (AgAllocator* alloc, void* raw_ptr);
 
 #ifdef __cplusplus
 }

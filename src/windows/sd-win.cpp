@@ -11,8 +11,10 @@
 #include <core/SkFont.h>
 #include <core/SkFontMgr.h>
 #include <ports/SkTypeface_win.h>
+#include <allocator.h>
 
 const char wnd_class_name[] = "MyWindowClass";
+constexpr size_t GRID_SIZE = 4ull << 32;  // 16Gb
 
 sk_sp<SkData> read_file(const char* path) {
     FILE* f = fopen(path, "rb");
@@ -86,6 +88,22 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 }
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+    HANDLE grid_file = CreateFileA("grid-memory.bin", GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (grid_file == INVALID_HANDLE_VALUE) return -1;
+    HANDLE grid_mapping = CreateFileMapping(grid_file, NULL, PAGE_READWRITE, GRID_SIZE >> 32, GRID_SIZE & 0xffffffff, NULL);
+    if (!grid_mapping) {
+        CloseHandle(grid_file);
+        return -2;
+    }
+    void* grid = MapViewOfFileEx(grid_mapping, FILE_MAP_READ | FILE_MAP_WRITE, 0, 0, GRID_SIZE, (void*)0x0000030000000000);
+    if (!grid) {
+        printf("Failed to map grid memory");
+        CloseHandle(grid_mapping);
+        CloseHandle(grid_file);
+        return -3;
+    }
+    if (*(uint64_t*)grid == 0)
+        ag_al_init(grid, GRID_SIZE);
     WNDCLASSEX wc{
         sizeof(WNDCLASSEX), 0, WndProc, 0, 0, hInstance,
         LoadIcon(NULL, IDI_APPLICATION),
@@ -114,5 +132,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         TranslateMessage(&msg);
         DispatchMessage(&msg);
     }
+    UnmapViewOfFile(grid);
+    CloseHandle(grid_mapping);
+    CloseHandle(grid_file);
     return msg.wParam;
 }

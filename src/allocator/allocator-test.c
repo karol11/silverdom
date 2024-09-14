@@ -82,7 +82,7 @@ void checked_free(void* ptr) {
 }
 
 void test() {
-    allocator = ag_al_init(heap, heap + sizeof(heap));
+    allocator = ag_al_init(heap, sizeof(heap));
     char* m1 = (char*)checked_alloc(32769);
     memset(m1, 0, 32769);
     checked_free(m1);

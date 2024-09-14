@@ -112,19 +112,19 @@ typedef struct AgAllocator_tag {
 } AgAllocator;
 
 // Called one time when heap is created in a raw memory.
-AgAllocator* ag_al_init(void* start_addr, void* end_addr) {
+AgAllocator* ag_al_init(void* start_addr, size_t size) {
     AgAllocator* me = (AgAllocator*) start_addr;
-    me->end = end_addr;
+    me->end = ((char*)start_addr) + size;
     for (AgAlListItem *i = me->b_free, *n = i + AG_AL_BUDDY_COUNT; i < n; i++)
         i->next = i->prev = i;
     for (AgAlListItem *i = me->p_free, *n = i + AG_AL_PAGE_COUNT; i < n; i++)
         i->next = i->prev = i;
     char* start = (char*) (me + 1);
-    size_t total_bytes = (char*)end_addr - start;
-    size_t buddy = bytes_to_buddy(total_bytes) - 1;
+    size -= sizeof(AgAllocator);
+    size_t buddy = bytes_to_buddy(size) - 1;
     size_t step = buddy_to_bytes(buddy);
     for (; step >= 65536; buddy--, step >>= 1) {
-        for (; (char*)end_addr - start >= step; start += step) {
+        for (; step <= size; start += step, size -= step) {
             AG_TRACE("Inited block @%lld of size %lld\n", ((char*)start - (char*)(me + 1)) / 65536, step / 65536);
             AgAlHeader* h = (AgAlHeader*) start;
             h->header = buddy << AG_AL_F_OFFSET | AG_AL_F_BUDDY;
