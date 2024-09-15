@@ -16,6 +16,10 @@
 const char wnd_class_name[] = "MyWindowClass";
 constexpr size_t GRID_SIZE = 4ull << 32;  // 16Gb
 
+extern "C" __declspec(dllexport) void log_fn(const char* text) {
+    OutputDebugStringA(text);
+}
+
 sk_sp<SkData> read_file(const char* path) {
     FILE* f = fopen(path, "rb");
     fseek(f, 0, SEEK_END);
@@ -123,6 +127,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     image = std::move(itmp);
     font = SkFontMgr_New_GDI()->matchFamilyStyle("Arial", SkFontStyle::Normal());
     // ->makeFromFile("C:/Users/andre/cpp/silverdom/NotoSerif-Bold.ttf");
+    auto code = LoadLibraryA("../code-stub/code.dll");
 
     ShowWindow(hwnd, nCmdShow);
     UpdateWindow(hwnd);

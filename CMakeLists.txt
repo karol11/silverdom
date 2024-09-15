@@ -13,3 +13,4 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 add_subdirectory("src/allocator")
 add_subdirectory("src/windows")
+add_subdirectory("src/code-stub")
