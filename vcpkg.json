@@ -2,15 +2,17 @@
   "name": "silverdom",
   "version": "0.0.10",
   "dependencies": [
+    "sdl2",
+    "opengl",
     {
       "name": "llvm",
-      "default-features":false,
-      "features": ["target-x86", "target-aarch64"]
+      "default-features": false,
+      "features": [ "target-x86", "target-aarch64" ]
     },
     {
       "name": "skia",
       "default-features": false,
-      "features":["graphite","freetype", "fontconfig", "harfbuzz", "icu"]
+      "features": [ "gl", "graphite", "freetype", "fontconfig", "harfbuzz", "icu" ]
     }
   ]
 }
